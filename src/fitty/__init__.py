@@ -5,4 +5,7 @@
 """Python Package Template"""
 from __future__ import annotations
 
+import fitty.fit_monod
+
+
 __version__ = "0.0.2"

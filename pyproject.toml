@@ -3,11 +3,16 @@ requires = ["flit_core >=2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name =  "py-project-toml"
+name =  "fitty"
 authors = [
-    {name = "Daniel Ciborowski", email = "dciborow@microsoft.com"},
+    {name = "Milan Sobota", email = "milan.sobota@stx.ox.ac.uk"},
 ]
-description = "Sample Python Project for creating a new Python Module"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy"
+]
+description = ""
 readme = "README.md"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -52,7 +57,7 @@ Source = "https://github.com/microsoft/python-package-template"
 Tracker = "https://github.com/microsoft/python-package-template/issues"
 
 [tool.flit.module]
-name = "python_package"
+name = "fitty"
 
 [tool.bandit]
 exclude_dirs = ["build","dist","tests","scripts"]
