@@ -72,7 +72,7 @@ def residuals(global_params, exp_params_vec, exp_data) -> np.ndarray:
 
 def total_res(params_flat, exp_data, w_S=1.0):
     """
-    Compute concatenated residuals across all experiments.
+    Compute and concatenate residuals across all experiments.
     exp_data: list of dicts with keys:
         't', 'X_obs', 'S0'
         optional: 'S_obs'
@@ -102,9 +102,10 @@ def total_res(params_flat, exp_data, w_S=1.0):
 
     return np.concatenate(residuals)
 
-def fit_monod_least_squares(exp_data, verbose=0, max_nfev=1000) -> dict:
+def fit_monod_least_squares(exp_data: list, bounds: tuple[list[int], list[int]], max_nfev=1000) -> dict:
     p0_dict = {'X0': [0.02]*len(exp_data), 'mu_max': 0.4, 'Ks': 0.2, 'Y': 0.4}
     p0 = pack_params(p0_dict)
+
     bounds = ([0]*len(exp_data) + [0,0,0], [1]*len(exp_data) + [10,10,10])
 
     res = least_squares(total_res, p0, args=(exp_data,), bounds=bounds)
@@ -129,18 +130,3 @@ def generate_synthetic(S0, mu_max, Ks, Y, X0, alpha, t) -> tuple[np.ndarray, np.
     OD = alpha * X
     return OD, S
 
-def hello_world(i: int = 0) -> str:
-    """Doc String."""
-    print("hello world")
-    return f"string-{i}"
-
-
-def good_night() -> str:
-    """Doc String."""
-    print("good night")
-    return "string"
-
-
-def hello_goodbye():
-    hello_world(1)
-    good_night()
