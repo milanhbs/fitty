@@ -1,5 +1,5 @@
 #   ---------------------------------------------------------------------------------
-#   Copyright (c) Microsoft Corporation. All rights reserved.
+#   Copyright (c) Fitty authors. All rights reserved.
 #   Licensed under the MIT License. See LICENSE in project root for information.
 #   ---------------------------------------------------------------------------------
 """This is a Sample Python file."""
@@ -33,13 +33,15 @@ def integrate_monod(t_eval, mu_max, Ks, Y, X0, S0) -> np.ndarray:
 
 def pack_params(param_dict) -> np.ndarray:
     X0s = np.array(param_dict['X0'])
+    Ys = np.array(param_dict['Y'])
     globals = np.array([param_dict['mu_max'], param_dict['Ks'], param_dict['Y']])
-    return np.concatenate([X0s, globals])
+    return np.concatenate([X0s, Ys, globals])
 
 def unpack_params(p_vec, n_exp) -> dict:
     X0s = p_vec[:n_exp]
-    mu_max, Ks, Y = p_vec[n_exp:]
-    return {'X0': X0s, 'mu_max': mu_max, 'Ks': Ks, 'Y': Y}
+    Ys = p_vec[n_exp:2*n_exp]
+    mu_max, Ks = p_vec[2*n_exp:]
+    return {'X0': X0s, 'Y': Ys, 'mu_max': mu_max, 'Ks': Ks}
 
 def residuals(global_params, exp_params_vec, exp_data) -> np.ndarray:
     """
@@ -87,6 +89,7 @@ def total_res(params_flat, exp_data, w_S=1.0):
         X_obs = exp['X_obs']
         S0 = exp['S0']
         X0 = pars['X0'][i]
+        Y = pars['Y'][i]
 
         # simulate model
         X_model, S_model = integrate_monod(t, mu_max, Ks, Y, X0, S0)
@@ -102,20 +105,25 @@ def total_res(params_flat, exp_data, w_S=1.0):
 
     return np.concatenate(residuals)
 
-def fit_monod_least_squares(exp_data: list, bounds: tuple[list[int], list[int]], max_nfev=1000) -> dict:
-    p0_dict = {'X0': [0.02]*len(exp_data), 'mu_max': 0.4, 'Ks': 0.2, 'Y': 0.4}
+def fit_monod_least_squares(exp_data: list, bounds: tuple[list[float], list[float]], max_nfev=1000) -> dict:
+    n_exp = len(exp_data)
+    p0_dict = {'X0': [0.02]*n_exp, 'Y': [0.4]*n_exp, 'mu_max': 0.4, 'Ks': 0.2}
     p0 = pack_params(p0_dict)
 
-    bounds = ([0]*len(exp_data) + [0,0,0], [1]*len(exp_data) + [10,10,10])
+    # bounds: [X0s, Ys, mu_max, Ks]
+    lower_bounds = [0.0]*n_exp + [0.1]*n_exp + [0.0, 0.0]
+    upper_bounds = [1.0]*n_exp + [2.0]*n_exp + [10.0, 10.0]
+    bounds = (lower_bounds, upper_bounds)
+    #bounds = ([0]*len(exp_data) + [0,0,0], [1]*len(exp_data) + [10,10,10])
 
-    res = least_squares(total_res, p0, args=(exp_data,), bounds=bounds)
+    res = least_squares(total_res, p0, args=(exp_data,), bounds=bounds, max_nfev=max_nfev)
     fit_pars = unpack_params(res.x, len(exp_data))
 
     print("\nFitted parameters:")
     print(f"  mu_max = {fit_pars['mu_max']:.3f}")
     print(f"  Ks     = {fit_pars['Ks']:.3f}")
-    print(f"  Y      = {fit_pars['Y']:.3f}")
     print(f"  X0s    = {[round(x,3) for x in fit_pars['X0']]}\n")
+    print(f"  Ys     = {[round(y,3) for y in fit_pars['Y']]}\n")
 
     return fit_pars
 

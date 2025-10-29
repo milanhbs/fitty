@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import matplotlib.pyplot as plt
 import fitty.fit_monod as fm
@@ -6,6 +8,7 @@ def plot_grid_of_monod_fits(data: list[dict], fit_pars: dict, consistent_axes: b
     # ------------------------------------------------------------
     # Plot fits for all experiments
     # ------------------------------------------------------------
+
     figsize = (10,4)
     n_exp = len(data)
     ncols = 3
@@ -28,10 +31,11 @@ def plot_grid_of_monod_fits(data: list[dict], fit_pars: dict, consistent_axes: b
         X_obs = exp['X_obs']
         S0 = exp['S0']
         X0_fit = fit_pars['X0'][i]
+        Y_fit = fit_pars['Y'][i]
 
         # simulate fit curves
         X_fit, S_fit = fm.integrate_monod(t,
-                                        fit_pars['mu_max'], fit_pars['Ks'], fit_pars['Y'],
+                                        fit_pars['mu_max'], fit_pars['Ks'], Y_fit,
                                         X0_fit, S0)
 
         # biomass plot

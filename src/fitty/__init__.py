@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 import fitty.fit_monod
+import fitty.plot_fits
+import fitty.preprocess
 
 
 __version__ = "0.0.2"

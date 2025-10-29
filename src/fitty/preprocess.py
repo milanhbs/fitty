@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import numpy as np
+import fitty.fit_monod as fm
 
 def trim_growth_curve(time, od, 
                       lag_deriv_threshold=0.002,
